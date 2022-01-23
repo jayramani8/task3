@@ -1,81 +1,41 @@
-let ChekIn;
-let CheckOut;
-let today;
-let today1, calculateInTime = 0, calculateBreakTime = 0;
-document.getElementById('chekOut').disabled = true;
+const chekIn = document.getElementById('chekIn');
+const chekOut = document.getElementById('chekOut');
+chekOut.disabled = true;
+let checkOutSecond, checkInSecond, calculateBreakTime = 0, CalculateInTime = 0;
 
-document.getElementById('chekIn').addEventListener('click', (event) => {
-    event.preventDefault();
-    document.getElementById('chekIn').disabled = true;
-    document.getElementById('chekOut').disabled = false;
+function clickChekIn() {
+    chekOut.disabled = false;
+    chekIn.disabled = true;
+    const todayCheckIn = new Date();
+    checkInSecond = (todayCheckIn.getHours() * 3600) + (todayCheckIn.getMinutes() * 60) + todayCheckIn.getSeconds();
+    if (checkOutSecond > 0) {
+        const totalBreak = checkInSecond - checkOutSecond;
+        calculateBreakTime = calculateBreakTime + totalBreak;
+    }
+}
 
-    today = new Date();
-    ChekIn = today.getHours() + ":" + today.getMinutes();
-
-
-    let BreakDiffInTime = (today1.getTime() / 1000).toFixed(0);
-    let BreakDiffOutTime = (today.getTime() / 1000).toFixed(0);
-
-    let brakHours = Math.floor(((BreakDiffOutTime - BreakDiffInTime) / 3600) % 24);
-    let brakMinutes = Math.floor((((BreakDiffOutTime - BreakDiffInTime) / 60) % 60));
-
-    let totalBreakTime = (brakHours * 60) + brakMinutes;
-    calculateBreakTime = calculateBreakTime + totalBreakTime;
-
-
-});
-document.getElementById('chekOut').addEventListener('click', (event) => {
-    event.preventDefault();
-    document.getElementById('chekIn').disabled = false;
-    document.getElementById('chekOut').disabled = true;
-
-
-    today1 = new Date();
-    CheckOut = today1.getHours() + ":" + today1.getMinutes();
-
-    let table = document.getElementById("myTable");
-
-    let CheckInTime = (today.getTime() / 1000).toFixed(0);
-    let CheckOutTime = (today1.getTime() / 1000).toFixed(0);
-
-    let inHours = Math.floor(((CheckOutTime - CheckInTime) / 3600) % 24);
-    let inMinuts = Math.floor((((CheckOutTime - CheckInTime) / 60) % 60));
-
-    inHours = inHours < 10 ? '0' + inHours : inHours;
-    inMinuts = inMinuts < 10 ? '0' + inMinuts : inMinuts;
-
-    let totalTime = inHours + ":" + inMinuts;
-    let TotalIntime = (inHours * 60) + inMinuts;
-
-    calculateInTime = calculateInTime + TotalIntime;
-    // console.log(totalTime);
-    let row = `<tr>
-            <td>${ChekIn}</td>
-            <td>${CheckOut}</td>
-            <td id="intime">${totalTime}</td>
-            </tr>`
+function clickChekOut() {
+    chekOut.disabled = true;
+    chekIn.disabled = false;
+    const todayCheckOut = new Date();
+    checkOutSecond = (todayCheckOut.getHours() * 3600) + (todayCheckOut.getMinutes() * 60) + todayCheckOut.getSeconds();
+    const totalTime = checkOutSecond - checkInSecond;
+    CalculateInTime = CalculateInTime + totalTime;
+    const table = document.getElementById("myTable");
+    const row = `<tr><td>${secondsToHms(checkInSecond)}</td>
+                     <td>${secondsToHms(checkOutSecond)}</td>
+                     <td>${secondsToHms(totalTime)}</td></tr>`
     table.innerHTML += row;
+    document.getElementById("show-total-intime").innerHTML = secondsToHms(CalculateInTime);
+    document.getElementById("show-total-break").innerHTML = secondsToHms(calculateBreakTime);
+}
 
-
-});
-
-document.getElementById('totalTime').addEventListener('click', (event) => {
-    event.preventDefault();
-
-    let h = Math.floor(calculateInTime / 60);
-    let m = calculateInTime % 60;
+function secondsToHms(d) {
+    let h = Math.floor(d / 3600);
+    let m = Math.floor(d % 3600 / 60);
+    let s = Math.floor(d % 3600 % 60);
     h = h < 10 ? '0' + h : h;
     m = m < 10 ? '0' + m : m;
-    document.getElementById("show-total-intime").innerHTML = (h + ":" + m);
-
-
-});
-document.getElementById('totalBreak').addEventListener('click', (event) => {
-    event.preventDefault();
-
-    let h = Math.floor(calculateBreakTime / 60);
-    let m = calculateBreakTime % 60;
-    h = h < 10 ? '0' + h : h;
-    m = m < 10 ? '0' + m : m;
-    document.getElementById("show-total-break").innerHTML = (h + ":" + m);
-});
+    s = s < 10 ? '0' + s : s;
+    return h + ":" + m + ":" + s;
+}
